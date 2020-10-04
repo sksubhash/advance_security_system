@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>View Details</title>
+    {% include 'style.html' %}
+    {% block style1 %}
+    {% endblock %}
+    <!-- plugins:css -->
+
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    {% include 'header.html' %}
+    {% block header1 %}
+    {% endblock %}
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                <div class="card col-lg-5 mx-auto">
+                    <div class="card-body">
+                        {% for task in alltasks%}
+                        <h4 class="card-title">{{task.type}} Details</h4>
+                        <table style="text-align:center" class="table table-responsive">
+                            <tr>
+                                <th>Name</th>
+                                <td>{{task.name}}</td>
+                            </tr>
+                            <tr>
+                                <th>Mobile</th>
+                                <td>{{task.mobile_number}}</td>
+                            </tr>
+                            <tr>
+                                <th>Gender</th>
+                                <td>{{task.gender}}</td>
+                            </tr>
+                            <tr>
+                                <th>Flat No</th>
+                                <td>{{task.flat_no}}</td>
+                            </tr>
+                            <tr>
+                                <th>Type</th>
+                                <td>{{task.type}}</td>
+                            </tr>
+                            {% if task.type == 'Visitor' %}
+                            <tr>
+                                <th>Reason</th>
+                                <td>{{task.reason}}</td>
+                            </tr>
+                            {% endif %}
+<!--                            <tr>-->
+<!--                                <th></th>-->
+<!--                                <form action="./" method="post">-->
+<!--                                    {% csrf_token %}-->
+<!--                                    <input type="hidden" name="id" value="{{task.id}}">-->
+<!--                                    <td>-->
+<!--                                        <button type="submit" class="btn btn-outline-primary btn-icon-text">-->
+<!--                                            Trace {{task.type}}-->
+<!--                                        </button>-->
+<!--                                    </td>-->
+<!--                                </form>-->
+<!--                            </tr>-->
+                            {% endfor %}
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:partials/_footer.html -->
+            {%include 'footer.html'%}
+            {% block footer1 %}
+            {% endblock %}
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<!-- plugins:js -->
+{%include 'jsf.html'%}
+{% block jsf1 %}
+{% endblock %}
+</body>
+</html>
+

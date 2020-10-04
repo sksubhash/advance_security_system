@@ -29,6 +29,13 @@
   <!-- partial -->
   <div class="container-fluid page-body-wrapper">
     <div class="main-panel">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+              {% endif %}
       <div class="content-wrapper">
 
         <button type="button" onclick="document.location.href='live';" class="btn btn-outline-primary btn-icon-text">
@@ -40,7 +47,7 @@
         <button type="button" onclick="document.location.href='add_residence';" class="btn btn-outline-info btn-icon-text">
           <i class="mdi mdi-home btn-icon-prepend"></i>Add Residence
         </button>
-        <button type="button" onclick="document.location.href='lol5';" class="btn btn-outline-success btn-icon-text">
+        <button type="button" onclick="document.location.href='vdetails';" class="btn btn-outline-success btn-icon-text">
           <i class="mdi mdi-home btn-icon-prepend"></i>View Details
         </button>
 
