@@ -1,0 +1,25 @@
+first clone the repo from GitHub
+for cloning write : 
+>git clone https://github.com/sksubhash/advance_security_system.git
+
+
+now install the requirement from requriment.txt    
+Go to Your Project Directory in my case C:\Users\subhash\PycharmProjects\AdvanceSecuritySystem is my project Directory . Now Install
+for that write command : 
+>pip install requriment.txt 
+
+
+create a sql database in your xampp/wampp
+database name should be : assdb
+
+
+Now Run Migrate Command to migrate database with this project
+>Python manage.py migrate
+
+
+Now Run Server Using 
+>python manage.py runserver
+
+
+Now All Set
+

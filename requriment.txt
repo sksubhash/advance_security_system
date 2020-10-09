@@ -1,0 +1,6 @@
+Django==3.0.6
+mysqlclient==1.4.6
+numpy==1.19.1
+opencv-contrib-python==4.4.0.42
+opencv-python==4.3.0.36
+
