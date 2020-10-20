@@ -1,11 +1,11 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect
 from django.contrib import messages
-import cv2, os, shutil, csv, datetime, time
+import cv2, os, datetime, time
 import numpy as np
-from PIL import Image, ImageTk
-import pandas as pd
-from assapp.models import tbldata ,tblvdetails
+from PIL import Image
+import winsound
+from assapp.models import tbldata, tblvdetails
 
 
 def home(request):
@@ -59,17 +59,15 @@ def watch_live(request):
     faceCascade = cv2.CascadeClassifier(harcascadePath)
     cam = cv2.VideoCapture(0)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    check_face = 0
     while True:
         ret, im = cam.read()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(gray, 1.2, 5)
         recognizer.read("TrainingImageLabel\Trainner.yml")
-        check_face = 0
+        lblfortime = 0
         for (x, y, w, h) in faces:
             Id, conf = recognizer.predict(gray[y:y + h, x:x + w])
             if (conf < 50):
-                check_face = 1
                 tasks_obj = tbldata.objects.get(id=Id)
                 type1 = tasks_obj.type
                 if type1 == 'Residence':
@@ -77,35 +75,43 @@ def watch_live(request):
                 else:
                     cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 tt = str(type1)
+                lblfortime = 1
             else:
                 cv2.rectangle(im, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                frequency = 2500  # Set Frequency To 2500 Hertz
+                duration = 2000  # 1000 ms == 1  second
+                winsound.Beep(frequency, duration)
                 tt = 'Unknown'
+
             cv2.putText(im, str(tt), (x, y + h), font, 1, (255, 255, 255), 2)
         cv2.imshow('Live Camera', im)
+        if int(lblfortime) == 1:
+            ts = time.time()
+            date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+            time1 = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+
+            tasks_obj = tblvdetails.objects.latest('date')
+            date2 = tasks_obj.date
+            tblvdetails_id = tasks_obj.id
+
+            if date == date2:
+                try:
+                    if tblvdetails.objects.get(date=date, tbldata_id=Id):
+                        pass
+                    else:
+                        a = tblvdetails(tbldata_id=Id, date=date, no_of_time=time1)
+                        a.save()
+                except:
+                    a = tblvdetails(tbldata_id=Id, date=date, no_of_time=time1)
+                    a.save()
+            else:
+                a = tblvdetails(tbldata_id=Id, date=date, no_of_time=time1)
+                a.save()
+        else:
+            pass
         if (cv2.waitKey(1) == ord('q')):
             break
-        # if str(check_face) == "1":
-        #     ts = time.time()
-        #     date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
-        #
-        #     tasks_obj = tblvdetails.objects.latest('date')
-        #     date2 = tasks_obj.date
-        #     tblvdetails_id = tasks_obj.id
-        #
-        #     if date == date2:
-        #         tasks_obj = tblvdetails.objects.get(id=tblvdetails_id)
-        #         id1 = tasks_obj.tbldata_id
-        #         if str(id1) == str(Id):
-        #             no_of_time = tasks_obj.no_of_time
-        #             no_of_time = int(no_of_time) + 1
-        #             tasks_obj.no_of_time = no_of_time
-        #             tasks_obj.save()
-        #         else:
-        #             a = tblvdetails(tbldata_id=Id, date=date, no_of_time="1")
-        #             a.save()
-        #     else:
-        #         a = tblvdetails(tbldata_id=Id, date=date, no_of_time="1")
-        #         a.save()
+
     cam.release()
     cv2.destroyAllWindows()
 
@@ -113,31 +119,41 @@ def watch_live(request):
 
 
 def vdetails(request):
-    # trace image
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read("TrainingImageLabel\Trainner.yml")
-    harcascadePath = "haarcascade_frontalface_default.xml"
-    faceCascade = cv2.CascadeClassifier(harcascadePath)
-    cam = cv2.VideoCapture(0)
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    while True:
-        ret, im = cam.read()
-        gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        faces = faceCascade.detectMultiScale(gray, 1.2, 5)
+    if request.method == "POST":
+        id = request.POST['id']
+        tasks_obj2 = tbldata.objects.raw('SELECT * FROM tbldata WHERE id = %s', [id])
+        tasks_obj = tbldata.objects.raw('SELECT * FROM tblvdetails WHERE tbldata_id = %s', [id])
+        return render(request, 'view_more_details.html', {"alltasks": tasks_obj, "alltasks2": tasks_obj2})
+
+    else:
+        # trace image
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
         recognizer.read("TrainingImageLabel\Trainner.yml")
-        for (x, y, w, h) in faces:
-            Id, conf = recognizer.predict(gray[y:y + h, x:x + w])
-            if (conf < 50):
-                tasks_obj = tbldata.objects.raw('SELECT * FROM tbldata WHERE id = %s', [Id])
-                return render(request, 'view_details.html', {"alltasks": tasks_obj})
-            else:
-                messages.warning(request, 'Your Are Not Identified ! Please Try Again ...')
-                return redirect("./")
-        cv2.imshow('View Detail', im)
-        if (cv2.waitKey(1) == ord('q')):
-            break
-    cam.release()
-    cv2.destroyAllWindows()
+        harcascadePath = "haarcascade_frontalface_default.xml"
+        faceCascade = cv2.CascadeClassifier(harcascadePath)
+        cam = cv2.VideoCapture(0)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        while True:
+            ret, im = cam.read()
+            gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+            faces = faceCascade.detectMultiScale(gray, 1.2, 5)
+            recognizer.read("TrainingImageLabel\Trainner.yml")
+            for (x, y, w, h) in faces:
+                Id, conf = recognizer.predict(gray[y:y + h, x:x + w])
+                if (conf < 50):
+                    frequency = 2500  # Set Frequency To 2500 Hertz
+                    duration = 1000  # 1000 ms == 1 second
+                    winsound.Beep(frequency, duration)
+                    tasks_obj = tbldata.objects.raw('SELECT * FROM tbldata WHERE id = %s', [Id])
+                    return render(request, 'view_details.html', {"alltasks": tasks_obj})
+                else:
+                    messages.warning(request, 'Your Are Not Identified ! Please Try Again ...')
+                    return redirect("./")
+            cv2.imshow('View Detail', im)
+            if (cv2.waitKey(1) == ord('q')):
+                break
+        cam.release()
+        cv2.destroyAllWindows()
 
 
 def add_visitor(request):
@@ -179,17 +195,14 @@ def add_visitor(request):
                 break
             # break if the sample number is morethan 30
             elif sampleNum > 30:
+                frequency = 2500  # Set Frequency To 2500 Hertz
+                duration = 1000  # 1000 ms == 1 second
+                winsound.Beep(frequency, duration)
                 break
         cam.release()
         cv2.destroyAllWindows()
         a = tbldata(name=name, mobile_number=contact, gender=gender, flat_no=flat_no, type='Visitor', reason=reason)
         a.save()
-        ts = time.time()
-        date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
-        tasks_obj = tbldata.objects.latest('id')
-        Id = tasks_obj.id
-        b = tblvdetails(tbldata_id=Id, date=date, no_of_time="1")
-        b.save()
 
         # train the system
         recognizer = cv2.face_LBPHFaceRecognizer.create()
@@ -249,18 +262,15 @@ def add_residence(request):
                 break
             # break if the sample number is morethan 100
             elif sampleNum > 30:
+                frequency = 2500  # Set Frequency To 2500 Hertz
+                duration = 1000  # 1000 ms == 1 second
+                winsound.Beep(frequency, duration)
                 break
         cam.release()
         cv2.destroyAllWindows()
         a = tbldata(name=name, mobile_number=contact, gender=gender, flat_no=flat_no, type='Residence',
                     reason='Null')
         a.save()
-        ts = time.time()
-        date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
-        tasks_obj = tbldata.objects.latest('id')
-        Id = tasks_obj.id
-        b = tblvdetails(tbldata_id=Id, date=date, no_of_time="1")
-        b.save()
 
         # train the system
         recognizer = cv2.face_LBPHFaceRecognizer.create()

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>View Details</title>
+    {% include 'style.html' %}
+    {% block style1 %}
+    {% endblock %}
+    <!-- plugins:css -->
+
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    {% include 'header.html' %}
+    {% block header1 %}
+    {% endblock %}
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="card col-lg-5 mx-auto">
+                    <div class="card-body">
+                        {% for task in alltasks2%}
+                        <h4 class="card-title">Tracking...</h4>
+                        <h4 class="card-title">Name:  <i>{{task.name}} / </i>Contact:  <i>{{task.mobile_number}}</i></h4>
+                        {% endfor %}
+
+                        <table style="text-align:center" class="table table-responsive">
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                            {% if alltasks %}
+                            {% for task in alltasks%}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{task.date}}</td>
+                                <td>{{task.no_of_time}}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr><td>No Record Found</td></tr>
+                            {% endif %}
+                            <tr>
+                                <td>
+                                        <button type="button" onclick="document.location.href='./';" class="btn btn-outline-primary btn-icon-text">
+                                            Go Home
+                                        </button>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:partials/_footer.html -->
+            {%include 'footer.html'%}
+            {% block footer1 %}
+            {% endblock %}
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<!-- plugins:js -->
+{%include 'jsf.html'%}
+{% block jsf1 %}
+{% endblock %}
+</body>
+</html>
+

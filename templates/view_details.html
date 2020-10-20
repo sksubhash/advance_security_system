@@ -61,18 +61,18 @@
                                 <td>{{task.reason}}</td>
                             </tr>
                             {% endif %}
-<!--                            <tr>-->
-<!--                                <th></th>-->
-<!--                                <form action="./" method="post">-->
-<!--                                    {% csrf_token %}-->
-<!--                                    <input type="hidden" name="id" value="{{task.id}}">-->
-<!--                                    <td>-->
-<!--                                        <button type="submit" class="btn btn-outline-primary btn-icon-text">-->
-<!--                                            Trace {{task.type}}-->
-<!--                                        </button>-->
-<!--                                    </td>-->
-<!--                                </form>-->
-<!--                            </tr>-->
+                            <tr>
+                                <th></th>
+                                <form action="vdetails" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id" value="{{task.id}}">
+                                    <td>
+                                        <button type="submit" class="btn btn-outline-primary btn-icon-text">
+                                            Trace {{task.type}}
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
                             {% endfor %}
                         </table>
 
