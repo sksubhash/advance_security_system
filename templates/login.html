@@ -27,10 +27,10 @@
                 {% endfor %}
               {% endif %}
             <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-              <div class="brand-logo">
-                <img src="{% static 'images/logo.svg'%}" alt="logo">
+              <div class="brand-logo" style="margin-bottom: -1rem;">
+                <a class="navbar-brand brand-logo" href="./"><i>Garden Villa Surat</i></a>
               </div>
-              <h4>Hello! let's get started</h4>
+              <h4>Hello! Admin</h4>
               <h6 class="font-weight-light">Sign in to continue.</h6>
               <form class="pt-3" method="post" action="login">
                   {% csrf_token %}

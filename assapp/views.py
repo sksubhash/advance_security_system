@@ -6,8 +6,12 @@ import numpy as np
 from PIL import Image
 import winsound
 from assapp.models import tbldata, tblvdetails
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 
+@login_required(login_url='./login')
 def home(request):
     return render(request, 'home.html')
 
@@ -16,15 +20,22 @@ def admin_login(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        if username == 'Admin@':
-            if password == 'Admin@123':
+        try:
+            if User.objects.get(username=username):
+                user = User.objects.get(username=username)
+            else:
+                messages.warning(request, 'Username is not matched !')
+                return redirect('./login')
+            pwd_valid = user.check_password(password)
+            if pwd_valid:
+                login(request, user)
                 return redirect('./')
             else:
-                messages.warning(request, 'wrong password ...!')
-                return redirect('login')
-        else:
-            messages.warning(request, 'wrong username ...!')
-            return redirect('login')
+                messages.warning(request, 'Invalid Password !')
+                return redirect('./login')
+        except User.DoesNotExist:
+            messages.warning(request, 'Username is not matched !')
+            return redirect('./login')
     else:
         return render(request, 'login.html')
 
@@ -51,6 +62,7 @@ def getImagesAndLabels(path):
     return faces, Ids
 
 
+@login_required(login_url='./login')
 def watch_live(request):
     # trace image
     recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -60,6 +72,8 @@ def watch_live(request):
     cam = cv2.VideoCapture(0)
     font = cv2.FONT_HERSHEY_SIMPLEX
     while True:
+        ret = cam.set(3, 1024)
+        ret = cam.set(4, 600)
         ret, im = cam.read()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(gray, 1.2, 5)
@@ -118,6 +132,7 @@ def watch_live(request):
     return redirect("./")
 
 
+@login_required(login_url='./login')
 def vdetails(request):
     if request.method == "POST":
         id = request.POST['id']
@@ -156,6 +171,7 @@ def vdetails(request):
         cv2.destroyAllWindows()
 
 
+@login_required(login_url='./login')
 def add_visitor(request):
     if request.method == "POST":
         name = request.POST['name']
@@ -224,6 +240,7 @@ def add_visitor(request):
         return render(request, 'add_visitor.html')
 
 
+@login_required(login_url='./login')
 def add_residence(request):
     if request.method == "POST":
         name = request.POST['name']
@@ -290,3 +307,8 @@ def add_residence(request):
                         type='test', reason="test")
             a.save()
         return render(request, 'add_residence.html')
+
+
+def user_logout(request):
+    logout(request)
+    return render(request, 'logout.html')
